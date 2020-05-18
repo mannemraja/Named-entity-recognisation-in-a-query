@@ -1,0 +1,71 @@
+def remcontext(q,ne):
+    for i in q:
+        for j in i:
+            if(j.lower() in ne):
+                i.remove(j)
+    return(q)
+
+import copy
+import xlrd
+from xlwt import Workbook 
+import numpy as np
+import pandas as pd
+
+f1=open('finaltext.txt','r')
+f2=open('ne1.txt','r')
+a=['music','book','movie','game']
+
+d1=f1.read()
+ml1=d1.splitlines()
+ml11=[]
+
+for i in ml1:
+    ml11.append(i.split(' '))
+d2=f2.read()
+ml2=d2.split()
+ml22=[]
+IC=[]
+queries=[]
+queries=copy.deepcopy(ml11)
+for i in ml2:
+    ml22.append([i.upper()])
+t=remcontext(ml11,ml2)
+flag=0
+arr=[]
+arr1=[]
+for i in ml22:
+    for j in t:
+        for k in queries:
+            if((False not in [ e in k for e in j ]) and (False not in [ v in k for v in i ])):
+                flag=1
+        if(flag==1):
+            flag=0
+            arr.append([i[0],j,1])
+                
+        else:
+            arr.append([i[0],j,0])
+flag=0
+arr2=[]
+for i in t:
+    for j in ml22:
+        for k in queries:
+            if((False not in [ e in k for e in j ]) and (False not in [ v in k for v in i ])):
+                flag=1
+        if(flag==1):
+            flag=0
+            arr1.append([i,j,1])
+        else:
+            arr1.append([i,j,0])
+I = pd.Index([i for i in t])
+C = pd.Index([i for i in ml2])
+a=[k[2] for k in arr1]
+b=np.reshape(a,(len(t),len(ml2)))
+df = pd.DataFrame(data=b,index=I,columns=C)
+
+# export DataFrame to csv
+df.to_csv('IC_outp.csv')
+print(len(df))
+print(len(ml22))
+print(len(t),len(df.index),len(df.columns))
+#fix upto context,ne,0|1 csv file
+#print(arr1)

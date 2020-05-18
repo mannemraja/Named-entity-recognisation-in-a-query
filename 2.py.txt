@@ -1,0 +1,262 @@
+import csv
+import copy
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+stop_words=set(stopwords.words('english'))
+#print(stop_words)
+
+
+with open('IC_outp.csv', 'rb') as f: 
+    reader1 = csv.reader(f) 
+    IC_li = list(reader1)
+#print(IC_li)
+
+
+
+with open('clna.csv', 'rb') as f: 
+    reader = csv.reader(f) 
+    li = list(reader)
+#print(li)
+di={}
+df=(pd.DataFrame(li))
+#print(df)
+for i in range(1,len(df.columns)):
+    for j in range(1,len(df.index)):
+        if(df[i][j]=='1'):
+            #print(df[i][0],df[0][j])
+            if(df[i][0] not in di):
+                di[df[i][0]]=df[0][j]
+            else:
+                if(type(di[df[i][0]])==list):
+                    di[df[i][0]].append(df[0][j])
+                else:
+                    lis=[]
+                    lis.append(di[df[i][0]])
+                    lis.append(df[0][j])
+                    di[df[i][0]]=lis
+#fix upta ne,cls
+
+def remcontext(q,ne):
+    for i in q:
+        for j in i:
+            if(j.lower() in ne):
+                i.remove(j)
+    return(q)
+
+def f22(context,key): 
+    d={}
+    s="".join(i for i in context)
+    d['music']=0
+    d['movie']=0
+    d['book']=0
+    d['game']=0
+    for i in (di[key]):
+        if(i=='music'):
+            d['music']=1
+        if(i=='movie'):
+            d['movie']=1
+        if(i=='book'):
+            d['book']=1
+        if(i=='game'):
+            #print(key)
+            d['game']=1
+    final[s]=d
+    #print(final)
+def f(context,ne):
+    d={}
+    #print(ne)
+    d['music']=0
+    d['movie']=0
+    d['book']=0
+    d['game']=0
+    #print(context,ne)
+    for key in di:
+        #print(key)
+        if(key==ne):
+            
+            #d[key] has the classes of named entity
+            #we have to add them to the present context individullay
+            if(type(di[key])!=list):
+                #print(key)
+                s="".join(i for i in context)
+                if(di[key]=='music'):
+                    d['music']=1
+                if(di[key]=='movie'):
+                    d['movie']=1
+                if(di[key]=='book'):
+                    d['book']=1
+                if(di[key]=='game'):
+                    #print(key)
+                    d['game']=1
+                final[s]=d
+            else:
+                #if list
+                f22(context,key)
+
+
+f1=open('finaltext.txt','r')
+f2=open('ne1.txt','r')
+a=['music','book','movie','game']
+
+d1=f1.read()
+ml1=d1.splitlines()
+ml11=[]
+
+for i in ml1:
+    ml11.append(i.split(' '))
+d2=f2.read()
+ml2=d2.split()
+ml22=[]
+IC=[]
+queries=[]
+queries=copy.deepcopy(ml11)
+for i in ml2:
+    ml22.append([i.upper()])
+    
+t=remcontext(ml11,ml2)
+final={}            
+for i in range(1,len(t)+1):
+    
+    for j in range(len(ml22)):
+        #print(i,j)
+        #pass
+        if(IC_li[i][j+1]=='1'):
+            
+            #pass
+            #print(IC_li[i][0],IC_li[0][j+1])
+            f(IC_li[i][0],IC_li[0][j+1])
+            
+f_df=pd.DataFrame(final)
+f_df.to_csv('ICout111.csv')
+#f2()
+f_df
+
+
+def fil_len():
+    with open('ne1.txt') as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+
+total_words=fil_len()   
+Ie=[]
+new_d={}
+l=[]
+Ie={}
+with open('clna.csv', 'rb') as f: 
+    reader = csv.reader(f) 
+    li = list(reader)
+
+df=pd.DataFrame(li)
+d={}
+#print(len(ml2))
+for l2 in ml2:
+    #print(l2)
+    count1=0
+    for l1 in ml1:
+        words=l1.split(' ')
+        #print(words)
+        for w1 in words:
+        #print(w1)
+            t=w1.lower()
+            #print(t)
+            if t==l2 :
+                #print(t)
+                if count1==0:
+                    count1+=1
+                    #print(t,count1)
+                else:
+                    count1+=1
+                    #print(t,count1)
+    #print(t,count1)
+    probability=float(count1)/float(total_words)
+    #print(t,probability)
+    d[l2]=probability                
+#print(len(d))
+  
+    
+for i in range(1,len(df.columns)):
+    c=0
+    count=0
+    for j in range(1,len(df.index)):
+        if(df[i][j]=='1'):
+            count+=1
+            c=float(count)/float(len(df.index))
+    #print(i,c)
+    #print(df[i])
+    for key, value in (d.items()):
+        if(key==df[i][0]):
+            Ie[key]=(value,c)
+            
+#print(f5)
+#print(len(Ie))
+for key, value in (Ie.items()):
+    #print(key,value)
+    pass
+f5=pd.DataFrame(Ie) 
+f5.to_csv('IE1.csv')
+    
+
+
+f_df
+
+
+with open('IC_outp.csv','rb') as f_1:
+    reader=csv.reader(f_1)
+    l1=list(reader)
+#print(l1)
+with open('ICout111.csv','rb') as f_2:
+    reader=csv.reader(f_2)
+    l2=list(reader)
+#print(l2)
+with open('IE1.csv','rb') as f_3:
+    reader=csv.reader(f_3)
+    l3=list(reader)
+
+testvar=raw_input("Enter query")
+#print(english)
+words=testvar.split()
+filtered_sentence=[]
+for w in words:
+    if w not in stop_words:
+        filtered_sentence.append(w)
+#print(filtered_sentence)
+con_in_que=[]
+
+for i in filtered_sentence:
+    if i in Ie:
+        print(i,Ie[i])
+        mul=1
+        for j in Ie[i]:
+            mul*=j
+        #print(mul)
+    else:
+        con_in_que.append(i)
+con_in_que
+
+
+m=""
+flag=0
+for i in f_df:
+    #print(i)
+    if(con_in_que[0] in i):
+        m=i
+        #print(m)
+        for j in con_in_que:
+            if j not in m:
+                flag=0
+                print(False)
+            else:
+                flag=1
+mx=0
+if(flag==1):
+    if(f_df[m]['game']):
+        print('game')
+    if(f_df[m]['book']):
+        print('book')
+    if(f_df[m]['movie']):
+        print('movie')
+    if(f_df[m]['music']):
+        print('music')
